@@ -1,7 +1,6 @@
 import requests, time, numpy as np, json, os, threading
 from datetime import datetime
 from flask import Flask, render_template_string
-from scipy.interpolate import lagrange
 
 app = Flask(__name__)
 
@@ -71,12 +70,20 @@ class RandomCrackEngine:
         return int(round(trend - 0.7 * res)) % 28
 
     def lagrange_logic(self, sums):
-        """拉格朗日插值：寻找多项式曲线干扰"""
+        """拉格朗日插值：寻找多项式曲线干扰（纯Python实现）"""
         if len(sums) < 5: return 13
-        y = np.array(sums[-4:])
-        x = np.arange(len(y))
-        poly = lagrange(x, y)
-        return int(abs(poly(len(y)))) % 28
+        y = sums[-4:]
+        n = len(y)
+        # 简化版插值预测
+        x_new = n
+        result = 0
+        for i in range(n):
+            term = y[i]
+            for j in range(n):
+                if i != j:
+                    term = term * (x_new - j) / (i - j)
+            result += term
+        return int(abs(result)) % 28
 
 # --------------------------
 # AI决策中心（简化版，移除TensorFlow）
